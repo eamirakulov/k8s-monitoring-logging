@@ -1,0 +1,3 @@
+---
+- name: Install Elasticsearch & Kibana
+  import_tasks: install.yml

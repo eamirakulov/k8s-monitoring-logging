@@ -1,0 +1,75 @@
+---
+- name: Purge old Elasticsearch (remove configs too)
+  ansible.builtin.apt:
+    name: elasticsearch
+    purge: yes
+    state: absent
+
+- name: Add Elastic GPG key
+  ansible.builtin.apt_key:
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Add Elastic 7.x repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+    state: present
+    update_cache: yes
+
+- name: Install Elasticsearch
+  ansible.builtin.apt:
+    name: "{{ elasticsearch_package }}"
+    state: present
+    force_apt_get: yes
+
+- name: Ensure Elasticsearch logs directory exists
+  ansible.builtin.file:
+    path: "{{ elasticsearch_logs_dir }}"
+    state: directory
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: '0755'
+
+- name: Ensure Elasticsearch data directory exists
+  ansible.builtin.file:
+    path: "{{ elasticsearch_data_dir }}"
+    state: directory
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: '0755'
+
+- name: Configure Elasticsearch
+  ansible.builtin.template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Elasticsearch
+
+- name: Install Kibana
+  ansible.builtin.apt:
+    name: kibana
+    state: present
+  notify: Restart Kibana
+
+- name: Configure Kibana
+  ansible.builtin.template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Kibana
+
+- name: Enable and start Elasticsearch
+  ansible.builtin.systemd:
+    name: elasticsearch
+    enabled: yes
+    state: restarted
+
+- name: Enable and start Kibana
+  ansible.builtin.systemd:
+    name: kibana
+    enabled: yes
+    state: restarted

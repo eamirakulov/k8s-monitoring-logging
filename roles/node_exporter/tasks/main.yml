@@ -1,0 +1,10 @@
+---
+- name: Install Node Exporter
+  import_tasks: install.yml
+
+- name: Configure Node Exporter
+  import_tasks: config.yml
+
+- name: Setup Node Exporter systemd service
+  import_tasks: service.yml
+  notify: Restart Node Exporter

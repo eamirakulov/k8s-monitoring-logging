@@ -1,0 +1,32 @@
+---
+- name: Add Fluent Bit GPG key
+  ansible.builtin.apt_key:
+    url: https://packages.fluentbit.io/fluentbit.key
+    state: present
+
+- name: Add Fluent Bit repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://packages.fluentbit.io/ubuntu/focal focal main"
+    state: present
+    update_cache: yes
+
+- name: Install Fluent Bit
+  ansible.builtin.apt:
+    name: td-agent-bit
+    state: present
+  notify: Restart Fluent Bit
+
+- name: Deploy Fluent Bit configuration
+  ansible.builtin.template:
+    src: fluent-bit.conf.j2
+    dest: /etc/td-agent-bit/td-agent-bit.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Fluent Bit
+  
+- name: Enable and start Fluent Bit
+  ansible.builtin.systemd:
+    name: td-agent-bit
+    enabled: yes
+    state: started

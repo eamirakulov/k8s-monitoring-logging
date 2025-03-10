@@ -1,0 +1,11 @@
+---
+- name: Install Prometheus
+  import_tasks: install.yml
+
+- name: Configure Prometheus
+  import_tasks: config.yml
+  notify: Restart Prometheus
+
+- name: Setup Prometheus systemd service
+  import_tasks: service.yml
+  notify: Reload systemd

@@ -1,0 +1,21 @@
+[SERVICE]
+    Flush         1
+    Daemon        Off
+    Log_Level     info
+
+[INPUT]
+    Name          systemd
+    Tag           host.*
+    DB            /var/log/flb_systemd.db
+    Systemd_Filter  _SYSTEMD_UNIT=ssh.service
+
+[OUTPUT]
+    Name          es
+    Match         host.*
+    Host          127.0.0.1
+    Port          9200
+    Index         fluentbit
+    Type          _doc
+    Logstash_Format On
+    Logstash_Prefix fluentbit
+    Time_Key      @timestamp

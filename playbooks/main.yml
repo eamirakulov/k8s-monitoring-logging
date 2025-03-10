@@ -1,0 +1,9 @@
+---
+- name: Deploy monitoring and logging stack
+  hosts: localhost
+  become: yes
+  roles:
+    - prometheus
+    - node_exporter
+    - elasticsearch_kibana
+    - fluentbit
